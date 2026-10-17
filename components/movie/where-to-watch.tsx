@@ -3,15 +3,12 @@
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
-import {
-  Tv,
-  Film,
-  ShoppingBag,
-  ExternalLink,
-  Globe,
-  Info,
-} from "lucide-react";
-import type { WatchProvidersResponse, WatchProvider, CountryWatchProviders } from "@/types/movie";
+import { Tv, Film, ShoppingBag, ExternalLink, Globe, Info } from "lucide-react";
+import type {
+  WatchProvidersResponse,
+  WatchProvider,
+  CountryWatchProviders,
+} from "@/types/movie";
 import { getProviderLogoUrl, getDirectWatchUrl } from "@/types/movie";
 
 interface WhereToWatchProps {
@@ -47,10 +44,13 @@ export default function WhereToWatch({
   }, [results, availableCountries]);
 
   const [selectedRegion, setSelectedRegion] = useState<string>(initialRegion);
-  const [activeTab, setActiveTab] = useState<"flatrate" | "rent" | "buy">("flatrate");
+  const [activeTab, setActiveTab] = useState<"flatrate" | "rent" | "buy">(
+    "flatrate",
+  );
 
   // Keep selectedRegion synced if results change
-  const currentCountryData: CountryWatchProviders | undefined = results[selectedRegion];
+  const currentCountryData: CountryWatchProviders | undefined =
+    results[selectedRegion];
 
   const streamProviders = currentCountryData?.flatrate ?? [];
   const rentProviders = currentCountryData?.rent ?? [];
@@ -60,7 +60,11 @@ export default function WhereToWatch({
 
   // Combine flatrate + free + ads under "Stream"
   const allStreamProviders = useMemo(() => {
-    const combined: WatchProvider[] = [...streamProviders, ...freeProviders, ...adsProviders];
+    const combined: WatchProvider[] = [
+      ...streamProviders,
+      ...freeProviders,
+      ...adsProviders,
+    ];
     // deduplicate by provider_id
     const seen = new Set<number>();
     return combined.filter((p) => {
@@ -79,7 +83,8 @@ export default function WhereToWatch({
 
   // If currently active tab is empty but another has options, auto-select the one with options
   const displayedProviders = useMemo(() => {
-    if (activeTab === "flatrate" && allStreamProviders.length > 0) return allStreamProviders;
+    if (activeTab === "flatrate" && allStreamProviders.length > 0)
+      return allStreamProviders;
     if (activeTab === "rent" && rentProviders.length > 0) return rentProviders;
     if (activeTab === "buy" && buyProviders.length > 0) return buyProviders;
 
@@ -138,7 +143,11 @@ export default function WhereToWatch({
                 {["IN", "US", "GB", "CA", "AU"]
                   .filter((c) => availableCountries.includes(c))
                   .map((code) => (
-                    <option key={code} value={code} className="bg-zinc-900 text-zinc-200">
+                    <option
+                      key={code}
+                      value={code}
+                      className="bg-zinc-900 text-zinc-200"
+                    >
                       {REGION_NAMES[code] || code} ({code})
                     </option>
                   ))}
@@ -148,7 +157,11 @@ export default function WhereToWatch({
                   .filter((c) => !["IN", "US", "GB", "CA", "AU"].includes(c))
                   .sort()
                   .map((code) => (
-                    <option key={code} value={code} className="bg-zinc-900 text-zinc-200">
+                    <option
+                      key={code}
+                      value={code}
+                      className="bg-zinc-900 text-zinc-200"
+                    >
                       {REGION_NAMES[code] || code} ({code})
                     </option>
                   ))}
@@ -236,8 +249,6 @@ export default function WhereToWatch({
             )}
           </button>
         </div>
-
-
       </div>
 
       {/* Provider List Grid */}
@@ -267,7 +278,6 @@ export default function WhereToWatch({
                     alt={provider.provider_name}
                     fill
                     className="object-cover"
-                    unoptimized
                   />
                 </div>
 
@@ -278,7 +288,11 @@ export default function WhereToWatch({
                   </p>
                   <p className="text-[10px] text-zinc-400 flex items-center gap-1 mt-0.5">
                     <span>
-                      {activeTab === "flatrate" ? "Subscription" : activeTab === "rent" ? "Rent" : "Purchase"}
+                      {activeTab === "flatrate"
+                        ? "Subscription"
+                        : activeTab === "rent"
+                          ? "Rent"
+                          : "Purchase"}
                     </span>
                     <ExternalLink className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 text-cine-amber transition-opacity shrink-0" />
                   </p>
@@ -297,10 +311,19 @@ export default function WhereToWatch({
               <Info className="w-5 h-5" />
             </div>
             <p className="text-sm font-semibold text-zinc-300">
-              No {activeTab === "flatrate" ? "streaming subscription" : activeTab === "rent" ? "rental" : "purchase"} availability data was returned for {REGION_NAMES[selectedRegion] || selectedRegion}.
+              No{" "}
+              {activeTab === "flatrate"
+                ? "streaming subscription"
+                : activeTab === "rent"
+                  ? "rental"
+                  : "purchase"}{" "}
+              availability data was returned for{" "}
+              {REGION_NAMES[selectedRegion] || selectedRegion}.
             </p>
             <p className="text-xs text-zinc-400 mt-1 max-w-md mx-auto">
-              Availability can vary by region and date. Check the streaming service directly for the latest listing. Sample mode does not include live streaming availability.
+              Availability can vary by region and date. Check the streaming
+              service directly for the latest listing. Sample mode does not
+              include live streaming availability.
             </p>
           </motion.div>
         )}

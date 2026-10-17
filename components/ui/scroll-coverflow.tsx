@@ -41,7 +41,8 @@ export interface ScrollCoverflowProps {
 /* helpers                                                                    */
 /* -------------------------------------------------------------------------- */
 
-const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+const clamp = (v: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, v));
 
 function genreOf(movie: Movie) {
   return (
@@ -115,11 +116,27 @@ interface CardProps {
   onSelect: (index: number, event: ReactMouseEvent<HTMLAnchorElement>) => void;
 }
 
-const CoverflowCard = memo(function CoverflowCard({ movie, index, isActive, near, priority, register, onSelect }: CardProps) {
-  const ref = useCallback((node: HTMLElement | null) => register(index, node), [register, index]);
+const CoverflowCard = memo(function CoverflowCard({
+  movie,
+  index,
+  isActive,
+  near,
+  priority,
+  register,
+  onSelect,
+}: CardProps) {
+  const ref = useCallback(
+    (node: HTMLElement | null) => register(index, node),
+    [register, index],
+  );
   const rating = Number(movie.vote_average || 0).toFixed(1);
   return (
-    <article ref={ref} className={`sc-card ${isActive ? "is-active" : ""}`} aria-hidden={!near} data-hidden="1">
+    <article
+      ref={ref}
+      className={`sc-card ${isActive ? "is-active" : ""}`}
+      aria-hidden={!near}
+      data-hidden="1"
+    >
       <div className="sc-card-tilt">
         <Link
           href={`/movie/${movie.id}`}
@@ -133,7 +150,6 @@ const CoverflowCard = memo(function CoverflowCard({ movie, index, isActive, near
             src={getPosterUrl(movie.poster_path, "w500")}
             alt={`${movie.title} poster`}
             fill
-            unoptimized
             sizes="(max-width: 720px) 70vw, 28vw"
             loading={priority ? "eager" : "lazy"}
             fetchPriority={priority ? "high" : "auto"}
@@ -181,7 +197,11 @@ export function ScrollCoverflow({
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
 
   const [active, setActive] = useState(0);
-  const isMobile = useSyncExternalStore(subscribeMobile, getMobile, getMobileServer);
+  const isMobile = useSyncExternalStore(
+    subscribeMobile,
+    getMobile,
+    getMobileServer,
+  );
 
   // Mutable animation state — kept out of React so scrolling never re-renders.
   const sim = useRef({
@@ -199,7 +219,13 @@ export function ScrollCoverflow({
     prevT: 0,
     reduced: false,
   });
-  const drag = useRef({ id: -1, x: 0, y: 0, mode: "idle" as "idle" | "pending" | "drag", moved: false });
+  const drag = useRef({
+    id: -1,
+    x: 0,
+    y: 0,
+    mode: "idle" as "idle" | "pending" | "drag",
+    moved: false,
+  });
   const tilt = useRef({ cx: 0, cy: 0, on: false, raf: 0 });
 
   const stepVh = isMobile ? STEP_VH_MOBILE : STEP_VH_DESKTOP;
@@ -247,8 +273,13 @@ export function ScrollCoverflow({
         const sign = d < 0 ? -1 : 1;
         const x = sign * (Math.min(ad, 1) * near + Math.max(ad - 1, 0) * far);
         // Rotation eases in over the first card so the hero card stays flat.
-        const rot = -sign * Math.min(ad, 1) ** 0.86 * 42 - sign * Math.max(Math.min(ad - 1, 1.5), 0) * 5;
-        const z = -Math.min(ad, 1) * 132 - Math.max(ad - 1, 0) * 76 + (1 - Math.min(ad, 1)) * 68;
+        const rot =
+          -sign * Math.min(ad, 1) ** 0.86 * 42 -
+          sign * Math.max(Math.min(ad - 1, 1.5), 0) * 5;
+        const z =
+          -Math.min(ad, 1) * 132 -
+          Math.max(ad - 1, 0) * 76 +
+          (1 - Math.min(ad, 1)) * 68;
         const scale = 1 - Math.min(ad, 3) * 0.07;
         const opacity = ad < 2.2 ? 1 : clamp(1 - (ad - 2.2) / 1.9, 0, 1);
         const shade = clamp(ad * 0.52, 0, 0.82);
@@ -319,9 +350,16 @@ export function ScrollCoverflow({
     const rect = stage.getBoundingClientRect();
     s.w = rect.width;
     s.h = rect.height;
-    const cardH = variant === "hero"
-      ? Math.min(window.innerHeight * (isMobile ? 0.69 : 0.79), rect.height * (isMobile ? 1.04 : 1.18))
-      : Math.min(rect.height * 0.9, rect.width * (rect.width < 720 ? 0.68 : 0.4) * 1.5);
+    const cardH =
+      variant === "hero"
+        ? Math.min(
+            window.innerHeight * (isMobile ? 0.69 : 0.79),
+            rect.height * (isMobile ? 1.04 : 1.18),
+          )
+        : Math.min(
+            rect.height * 0.9,
+            rect.width * (rect.width < 720 ? 0.68 : 0.4) * 1.5,
+          );
     s.cardW = cardH / 1.5;
     stage.style.setProperty("--card-h", `${cardH.toFixed(0)}px`);
     measureGeo();
@@ -362,7 +400,8 @@ export function ScrollCoverflow({
       s.prevT = t;
       const diff = s.target - s.pos;
       // The page scroller already eases wheel input, so follow it tightly to avoid double-smoothing lag.
-      const rate = document.documentElement.dataset.smoothScroll === "on" ? 34 : 20;
+      const rate =
+        document.documentElement.dataset.smoothScroll === "on" ? 34 : 20;
       if (s.reduced || Math.abs(diff) < 0.0008) s.pos = s.target;
       else s.pos += diff * (1 - Math.exp(-dt * rate));
 
@@ -461,11 +500,20 @@ export function ScrollCoverflow({
   }, []);
 
   /* ---- pointer drag (touch swipe / mouse drag) → scroll ------------------- */
-  const pxPerCard = useCallback(() => (window.innerHeight * stepVh) / 100, [stepVh]);
+  const pxPerCard = useCallback(
+    () => (window.innerHeight * stepVh) / 100,
+    [stepVh],
+  );
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
-    drag.current = { id: event.pointerId, x: event.clientX, y: event.clientY, mode: "pending", moved: false };
+    drag.current = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      mode: "pending",
+      moved: false,
+    };
   };
 
   const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -496,7 +544,10 @@ export function ScrollCoverflow({
     }
     // 1 card ≈ 0.62 card-widths of finger travel feels natural.
     const fingerPerCard = Math.max(110, sim.current.cardW * 0.62);
-    window.scrollBy({ top: (-(event.clientX - d.x) / fingerPerCard) * pxPerCard(), behavior: "instant" });
+    window.scrollBy({
+      top: (-(event.clientX - d.x) / fingerPerCard) * pxPerCard(),
+      behavior: "instant",
+    });
     d.x = event.clientX;
   };
 
@@ -517,7 +568,9 @@ export function ScrollCoverflow({
       const trackTop = track.getBoundingClientRect().top + window.scrollY;
       const top = trackTop + (index / (count - 1)) * scrollable;
       if (document.documentElement.dataset.smoothScroll === "on") {
-        window.dispatchEvent(new CustomEvent("mrxyz:scrollto", { detail: { top } }));
+        window.dispatchEvent(
+          new CustomEvent("mrxyz:scrollto", { detail: { top } }),
+        );
       } else {
         window.scrollTo({ top, behavior: "smooth" });
       }
@@ -553,7 +606,8 @@ export function ScrollCoverflow({
   const activeMovie = films[clamp(active, 0, Math.max(count - 1, 0))];
   const ambientFor = (movie: Movie | undefined) => {
     if (!movie) return "";
-    if (variant === "hero" && movie.backdrop_path) return getBackdropUrl(movie.backdrop_path, "w300");
+    if (variant === "hero" && movie.backdrop_path)
+      return getBackdropUrl(movie.backdrop_path, "w300");
     return getPosterUrl(movie.poster_path, "w185");
   };
 
@@ -573,7 +627,9 @@ export function ScrollCoverflow({
   // Keep the focused film and its two neighbours mounted. Layers are keyed by
   // film, so moving focus only toggles an opacity class (compositor-only
   // cross-fade) and the next backdrop is already decoded when it is needed.
-  const ambientIdx = [active - 1, active, active + 1].filter((i) => i >= 0 && i < count);
+  const ambientIdx = [active - 1, active, active + 1].filter(
+    (i) => i >= 0 && i < count,
+  );
 
   return (
     <section
@@ -617,7 +673,8 @@ export function ScrollCoverflow({
           onPointerLeave={(e) => {
             if (e.pointerType === "mouse") {
               tilt.current.on = false;
-              if (!tilt.current.raf) tilt.current.raf = requestAnimationFrame(applyTilt);
+              if (!tilt.current.raf)
+                tilt.current.raf = requestAnimationFrame(applyTilt);
             }
           }}
           onKeyDown={onKeyDown}
@@ -639,18 +696,27 @@ export function ScrollCoverflow({
 
         <div className="sc-hud">
           <div className="sc-hud-count" aria-live="polite">
-            <span className="sc-hud-now">{String(active + 1).padStart(2, "0")}</span>
+            <span className="sc-hud-now">
+              {String(active + 1).padStart(2, "0")}
+            </span>
             <span className="sc-hud-sep" />
-            <span className="sc-hud-total">{String(count).padStart(2, "0")}</span>
+            <span className="sc-hud-total">
+              {String(count).padStart(2, "0")}
+            </span>
           </div>
 
           <div key={activeMovie?.id} className="sc-hud-info">
             <span className="sc-hud-meta">
               {yearOf(activeMovie)} <i /> {genreOf(activeMovie)} <i />
-              <span className="sc-hud-rate"><Star size={11} fill="currentColor" /> {Number(activeMovie.vote_average || 0).toFixed(1)}</span>
+              <span className="sc-hud-rate">
+                <Star size={11} fill="currentColor" />{" "}
+                {Number(activeMovie.vote_average || 0).toFixed(1)}
+              </span>
             </span>
             <h3 className="sc-hud-title">{activeMovie.title}</h3>
-            <p className="sc-hud-overview">{activeMovie.overview || "A story waiting to be discovered."}</p>
+            <p className="sc-hud-overview">
+              {activeMovie.overview || "A story waiting to be discovered."}
+            </p>
           </div>
 
           <div className="sc-hud-actions">
@@ -666,9 +732,17 @@ export function ScrollCoverflow({
                   ? `Remove ${activeMovie.title} from watchlist`
                   : `Add ${activeMovie.title} to watchlist`
               }
-              title={actionMode === "remove" || saved ? "Remove from watchlist" : "Add to watchlist"}
+              title={
+                actionMode === "remove" || saved
+                  ? "Remove from watchlist"
+                  : "Add to watchlist"
+              }
             >
-              {saved || actionMode === "remove" ? <Check size={16} /> : <BookmarkPlus size={16} />}
+              {saved || actionMode === "remove" ? (
+                <Check size={16} />
+              ) : (
+                <BookmarkPlus size={16} />
+              )}
             </button>
           </div>
 
@@ -677,8 +751,12 @@ export function ScrollCoverflow({
           </div>
           {pinned && (
             <span className="sc-hint" aria-hidden="true">
-              <span className="sc-mouse"><span /></span>
-              <span className="sc-hint-text">{isMobile ? "Swipe or scroll" : "Scroll to rotate"}</span>
+              <span className="sc-mouse">
+                <span />
+              </span>
+              <span className="sc-hint-text">
+                {isMobile ? "Swipe or scroll" : "Scroll to rotate"}
+              </span>
             </span>
           )}
         </div>

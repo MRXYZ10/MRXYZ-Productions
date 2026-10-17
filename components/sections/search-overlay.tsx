@@ -77,9 +77,10 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     setIsLoading(true);
     const delayDebounceFn = setTimeout(async () => {
       try {
-        const endpoint = searchMode === "ai"
-          ? `/api/movies/semantic-search?q=${encodeURIComponent(query)}`
-          : `/api/movies/search?q=${encodeURIComponent(query)}`;
+        const endpoint =
+          searchMode === "ai"
+            ? `/api/movies/semantic-search?q=${encodeURIComponent(query)}`
+            : `/api/movies/search?q=${encodeURIComponent(query)}`;
         const res = await fetch(endpoint);
         const data = await res.json();
         if (data && data.results) {
@@ -126,7 +127,9 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
 
         case "ArrowUp":
           e.preventDefault();
-          setSelectedIndex((prev) => (prev - 1 + activeList.length) % activeList.length);
+          setSelectedIndex(
+            (prev) => (prev - 1 + activeList.length) % activeList.length,
+          );
           break;
 
         case "Enter":
@@ -149,7 +152,9 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   // ---------------------------------------------------------------------------
   useEffect(() => {
     if (resultsContainerRef.current) {
-      const selectedElement = resultsContainerRef.current.children[selectedIndex] as HTMLElement;
+      const selectedElement = resultsContainerRef.current.children[
+        selectedIndex
+      ] as HTMLElement;
       if (selectedElement) {
         selectedElement.scrollIntoView({
           block: "nearest",
@@ -188,7 +193,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
               "w-full max-w-2xl overflow-hidden rounded-2xl border bg-zinc-950/80 shadow-[0_0_50px_rgba(0,0,0,0.8)] transition-all duration-300",
               searchMode === "ai"
                 ? "border-cine-blue/20 shadow-cine-blue/10 glow-ai"
-                : "border-white/[0.08] shadow-cine-blue/5 glow-blue"
+                : "border-white/[0.08] shadow-cine-blue/5 glow-blue",
             )}
             onClick={(e) => e.stopPropagation()}
           >
@@ -204,7 +209,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   "flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-semibold tracking-wide transition-all cursor-pointer border",
                   searchMode === "standard"
                     ? "bg-white/10 text-white border-white/10"
-                    : "text-muted-foreground hover:text-foreground border-transparent"
+                    : "text-muted-foreground hover:text-foreground border-transparent",
                 )}
               >
                 <Search className="h-3.5 w-3.5" />
@@ -220,10 +225,15 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   "flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-semibold tracking-wide transition-all cursor-pointer relative overflow-hidden group border",
                   searchMode === "ai"
                     ? "bg-gradient-to-r from-cine-blue/20 to-purple-500/20 text-cine-blue border-cine-blue/30 shadow-[0_0_15px_rgba(1,180,228,0.15)] font-bold"
-                    : "text-muted-foreground hover:text-foreground border-transparent"
+                    : "text-muted-foreground hover:text-foreground border-transparent",
                 )}
               >
-                <Sparkles className={cn("h-3.5 w-3.5 text-purple-400 group-hover:animate-pulse", searchMode === "ai" && "animate-pulse text-cine-blue")} />
+                <Sparkles
+                  className={cn(
+                    "h-3.5 w-3.5 text-purple-400 group-hover:animate-pulse",
+                    searchMode === "ai" && "animate-pulse text-cine-blue",
+                  )}
+                />
                 Smart Search
                 {searchMode === "ai" && (
                   <span className="absolute inset-0 bg-gradient-to-r from-cine-blue/5 to-purple-500/5 blur-md animate-pulse" />
@@ -319,7 +329,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                           "group flex items-center justify-between rounded-xl px-3 py-2.5 cursor-pointer transition-all duration-200 border",
                           isSelected
                             ? "bg-gradient-to-r from-cine-blue/15 to-cine-blue/5 border-cine-blue/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
-                            : "bg-transparent border-transparent hover:bg-white/[0.02]"
+                            : "bg-transparent border-transparent hover:bg-white/[0.02]",
                         )}
                       >
                         <div className="flex items-center gap-3 min-w-0">
@@ -331,7 +341,6 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                               fill
                               sizes="32px"
                               className="object-cover"
-                              unoptimized
                             />
                           </div>
                           {/* Text info */}
@@ -339,7 +348,9 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                             <p
                               className={cn(
                                 "text-sm font-bold truncate leading-snug transition-colors duration-200",
-                                isSelected ? "text-cine-blue" : "text-foreground"
+                                isSelected
+                                  ? "text-cine-blue"
+                                  : "text-foreground",
                               )}
                             >
                               {movie.title}
@@ -349,7 +360,9 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                               <span>·</span>
                               <div className="flex items-center gap-0.5 text-cine-amber">
                                 <Star className="h-3 w-3 fill-cine-amber" />
-                                <span className="font-bold">{rating.toFixed(1)}</span>
+                                <span className="font-bold">
+                                  {rating.toFixed(1)}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -372,7 +385,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                               "h-4 w-4 transition-all duration-200",
                               isSelected
                                 ? "text-cine-blue translate-x-0.5"
-                                : "text-muted-foreground/30 group-hover:text-muted-foreground"
+                                : "text-muted-foreground/30 group-hover:text-muted-foreground",
                             )}
                           />
                         </div>
@@ -391,7 +404,9 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                     )}
                   </div>
                   <h3 className="text-sm font-bold text-foreground">
-                    {searchMode === "ai" ? "No semantic matches found" : "No matches found"}
+                    {searchMode === "ai"
+                      ? "No semantic matches found"
+                      : "No matches found"}
                   </h3>
                   <p className="mt-1 text-xs text-muted-foreground max-w-[280px]">
                     {searchMode === "ai"

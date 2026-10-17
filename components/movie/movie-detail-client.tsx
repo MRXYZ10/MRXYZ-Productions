@@ -74,9 +74,10 @@ export default function MovieDetailClient({
   };
 
   // Find the primary trailer
-  const trailer = movie.videos?.results?.find(
-    (v) => v.site === "YouTube" && v.type === "Trailer"
-  ) ?? movie.videos?.results?.[0];
+  const trailer =
+    movie.videos?.results?.find(
+      (v) => v.site === "YouTube" && v.type === "Trailer",
+    ) ?? movie.videos?.results?.[0];
 
   // Format runtime
   const hours = Math.floor(movie.runtime / 60);
@@ -98,8 +99,10 @@ export default function MovieDetailClient({
   MOCK_GENRES.forEach((g) => (genreMap[g.id] = g.name));
 
   // Quick OTT streaming preview for Hero section
-  const watchResults = movie.watch_providers?.results || movie["watch/providers"]?.results;
-  const inProviders = watchResults?.["IN"]?.flatrate || watchResults?.["US"]?.flatrate || [];
+  const watchResults =
+    movie.watch_providers?.results || movie["watch/providers"]?.results;
+  const inProviders =
+    watchResults?.["IN"]?.flatrate || watchResults?.["US"]?.flatrate || [];
   const heroQuickProviders = inProviders.slice(0, 3);
 
   return (
@@ -154,7 +157,6 @@ export default function MovieDetailClient({
             fill
             className="object-cover object-top"
             priority
-            unoptimized
           />
 
           {/* Multi-layer gradient overlays */}
@@ -209,7 +211,6 @@ export default function MovieDetailClient({
                   fill
                   className="object-cover"
                   priority
-                  unoptimized
                 />
                 {/* Hover glow */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-t from-cine-blue/20 to-transparent" />
@@ -306,8 +307,6 @@ export default function MovieDetailClient({
                   )}
                   {inWatchlist ? "In Watchlist" : "Add to Watchlist"}
                 </button>
-
-
               </div>
 
               {/* Quick OTT streaming preview in Hero */}
@@ -333,7 +332,6 @@ export default function MovieDetailClient({
                             alt={p.provider_name}
                             fill
                             className="object-cover"
-                            unoptimized
                           />
                         </div>
                         <span>{p.provider_name}</span>
@@ -407,7 +405,6 @@ export default function MovieDetailClient({
                         alt={member.name}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        unoptimized
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </div>
@@ -448,7 +445,6 @@ export default function MovieDetailClient({
                     alt={trailer.name}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    unoptimized
                   />
                   <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors duration-300" />
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -489,17 +485,13 @@ export default function MovieDetailClient({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.7 + i * 0.05 }}
                   >
-                    <Link
-                      href={`/movie/${m.id}`}
-                      className="group block"
-                    >
+                    <Link href={`/movie/${m.id}`} className="group block">
                       <div className="relative aspect-[2/3] rounded-xl overflow-hidden border border-white/[0.06] mb-2.5 group-hover:border-cine-blue/30 transition-all duration-300 shadow-lg shadow-black/20 group-hover:shadow-cine-blue/10">
                         <Image
                           src={getPosterUrl(m.poster_path, "w342")}
                           alt={m.title}
                           fill
                           className="object-cover transition-transform duration-500 group-hover:scale-110"
-                          unoptimized
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
@@ -533,7 +525,6 @@ export default function MovieDetailClient({
           )}
         </div>
       </div>
-
     </>
   );
 }
