@@ -34,7 +34,7 @@ For further setup and deployment notes, see [`MRXYZ-SETUP.md`](./MRXYZ-SETUP.md)
 
 ## Main experience
 
-- Signature interactive 3D hero carousel (mouse/touch drag, arrow buttons and keyboard controls) with restrained, professional poster-grid browsing below
+- Signature live-movie 3D coverflow roll with auto-rotation, pointer/touch drag, arrow controls, keyboard support, cinematic backdrops and depth-layered poster cards; a refreshed noir, champagne-gold and ultraviolet visual system throughout
 - Trending movies, latest theatrical releases in India, upcoming releases, and highly rated picks
 - Mood-based discovery
 - Movie detail pages, trailers and where-to-watch information
@@ -50,3 +50,7 @@ npm run build
 ```
 
 Movie catalogue data and artwork are provided by TMDB. This independent project is not affiliated with TMDB.
+
+### Section-wide 3D movie coverflow
+
+Trending, current releases, upcoming titles, critics' picks, AI mood results, and the saved watchlist now use interactive 3D rolling carousels. Each section has a different accent treatment; use the arrows, drag/swipe, or keyboard arrows to navigate. Autoplay only runs while the carousel is in view and respects reduced-motion settings.

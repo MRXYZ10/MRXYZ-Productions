@@ -25,9 +25,12 @@ async function fetchPageData(): Promise<{ trending: Movie[]; topRated: Movie[]; 
 
   // Keep core discovery useful before the owner configures TMDB. Only show
   // live release sections when TMDB successfully returns live catalogue data.
+  const liveTrending = trending.length ? trending : MOCK_MOVIES;
+  const liveTopRated = topRated.length ? topRated : [...MOCK_MOVIES].sort((a, b) => b.vote_average - a.vote_average);
+
   return {
-    trending: trending.length ? trending : MOCK_MOVIES,
-    topRated: topRated.length ? topRated : [...MOCK_MOVIES].sort((a, b) => b.vote_average - a.vote_average),
+    trending: liveTrending,
+    topRated: liveTopRated,
     nowPlaying,
     upcoming,
   };
@@ -35,12 +38,17 @@ async function fetchPageData(): Promise<{ trending: Movie[]; topRated: Movie[]; 
 
 export default async function Home() {
   const { trending, topRated, nowPlaying, upcoming } = await fetchPageData();
+  // Feed the coverflow with real TMDB results when available. De-duplicate IDs
+  // while keeping the trending feed at the front and retain the mock fallback.
+  const spotlight = [...trending, ...nowPlaying, ...upcoming, ...topRated]
+    .filter((movie, index, all) => all.findIndex((candidate) => candidate.id === movie.id) === index)
+    .slice(0, 15);
 
   return (
     <>
       <Navbar />
       <main id="top">
-        <Hero />
+        <Hero movies={spotlight} />
         <TrendingSection movies={trending} />
         <ReleaseSection
           id="latest-releases"

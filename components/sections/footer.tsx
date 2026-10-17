@@ -4,7 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="mt-12 border-t border-white/[0.08] px-5 py-10 sm:px-8 lg:px-12">
+    <footer className="cinema-footer mt-12 border-t border-white/[0.08] px-5 py-10 sm:px-8 lg:px-12">
       <div className="mx-auto flex max-w-[1440px] flex-col gap-7 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <Link href="/" className="inline-flex items-center gap-3">

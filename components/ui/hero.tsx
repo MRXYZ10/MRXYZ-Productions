@@ -1,135 +1,249 @@
 "use client";
 
-import { useRef, useState, type PointerEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowUpRight, ChevronLeft, ChevronRight, Clapperboard, Play, Sparkles, Star } from "lucide-react";
+import Image from "next/image";
+import {
+  ArrowDownRight,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Clapperboard,
+  Compass,
+  Play,
+  Sparkles,
+  Star,
+} from "lucide-react";
+import type { Movie } from "@/types/movie";
+import { getBackdropUrl, getPosterUrl, MOCK_GENRES } from "@/types/movie";
 
-const FEATURED = [
-  { id: 157336, title: "Interstellar", genre: "SCI-FI · ADVENTURE", year: "2014", rating: "8.7", poster: "/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg" },
-  { id: 693134, title: "Dune: Part Two", genre: "SCI-FI · EPIC", year: "2024", rating: "8.2", poster: "/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg" },
-  { id: 27205, title: "Inception", genre: "SCI-FI · THRILLER", year: "2010", rating: "8.4", poster: "/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg" },
-  { id: 155, title: "The Dark Knight", genre: "ACTION · CRIME", year: "2008", rating: "9.0", poster: "/qJ2tW6WMUDux911r6m7haRef0WH.jpg" },
-  { id: 438631, title: "Dune", genre: "SCI-FI · DRAMA", year: "2021", rating: "7.8", poster: "/d5NXSklXo0qyIYkgV94XAgMIckC.jpg" },
-  { id: 299536, title: "Avengers: Infinity War", genre: "ACTION · FANTASY", year: "2018", rating: "8.2", poster: "/7WsyChQLEftFiDOVTGqqus9oxwS.jpg" },
-  { id: 823464, title: "Godzilla Minus One", genre: "ACTION · DRAMA", year: "2023", rating: "7.7", poster: "/hkxxMIGaiCTmrEArK7J56JTKUlB.jpg" },
-];
+type HeroProps = { movies: Movie[] };
 
-const imageUrl = (path: string) => `https://image.tmdb.org/t/p/w500${path}`;
+function getMovieYear(movie: Movie) {
+  return movie.release_date?.slice(0, 4) || "Coming soon";
+}
 
-export function Hero() {
-  const [rotation, setRotation] = useState(-12);
+function getMovieGenre(movie: Movie) {
+  return movie.genre_ids
+    ?.map((id) => MOCK_GENRES.find((genre) => genre.id === id)?.name)
+    .find(Boolean) || "FEATURED FILM";
+}
+
+function getOffset(index: number, activeIndex: number, length: number) {
+  const raw = index - activeIndex;
+  if (raw > length / 2) return raw - length;
+  if (raw < -length / 2) return raw + length;
+  return raw;
+}
+
+export function Hero({ movies }: HeroProps) {
+  const films = movies.filter((movie) => Boolean(movie.poster_path)).slice(0, 15);
+  const filmCount = films.length;
+  const [activeIndex, setActiveIndex] = useState(0);
   const [dragging, setDragging] = useState(false);
-  const lastX = useRef(0);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const startX = useRef(0);
   const moved = useRef(false);
 
-  const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    // Capture the pointer so the carousel keeps tracking a drag even when the
-    // cursor/finger briefly moves beyond the scene bounds.
-    event.currentTarget.setPointerCapture(event.pointerId);
-    setDragging(true);
-    lastX.current = event.clientX;
+  const step = useCallback((direction: number) => {
+    if (!filmCount) return;
+    setActiveIndex((current) => (current + direction + filmCount) % filmCount);
+  }, [filmCount]);
+
+  useEffect(() => {
+    if (paused || dragging || filmCount < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const timer = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % filmCount);
+    }, 5600);
+    return () => window.clearInterval(timer);
+  }, [paused, dragging, filmCount]);
+
+  const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    startX.current = event.clientX;
     moved.current = false;
+    setDragging(true);
+    setDragOffset(0);
   };
-  const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+
+  const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (!dragging) return;
-    const delta = event.clientX - lastX.current;
-    if (Math.abs(delta) > 1) moved.current = true;
-    setRotation((value) => value + delta * 0.42);
-    lastX.current = event.clientX;
+    const delta = event.clientX - startX.current;
+    if (Math.abs(delta) > 7 && !moved.current) {
+      moved.current = true;
+      // Capture only after an actual drag begins so a normal poster click still
+      // follows its link, while an in-progress drag can leave the stage safely.
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+    setDragOffset(delta);
   };
-  const onPointerUp = () => setDragging(false);
+
+  const onPointerUp = () => {
+    if (!dragging) return;
+    const delta = dragOffset;
+    if (Math.abs(delta) > 42) {
+      const amount = Math.max(1, Math.min(3, Math.round(Math.abs(delta) / 150)));
+      step(delta < 0 ? amount : -amount);
+    }
+    setDragging(false);
+    setDragOffset(0);
+  };
+
+  const active = films[activeIndex];
+  const activeBackdrop = active?.backdrop_path ? getBackdropUrl(active.backdrop_path, "w1280") : "";
 
   return (
-    <section className="mr-hero relative isolate min-h-[760px] overflow-hidden px-5 pb-16 pt-28 sm:px-8 lg:min-h-[820px] lg:px-14 lg:pt-32">
-      <div className="mr-hero-grid pointer-events-none absolute inset-0 -z-10" />
-      <div className="mr-orb mr-orb-one pointer-events-none absolute -right-24 top-10 -z-10" />
-      <div className="mr-orb mr-orb-two pointer-events-none absolute bottom-0 left-[20%] -z-10" />
-      <div className="mx-auto grid w-full max-w-[1440px] items-center gap-4 lg:grid-cols-[0.86fr_1.14fr] lg:gap-0">
-        <div className="relative z-10 mx-auto w-full max-w-[600px] text-center lg:mx-0 lg:text-left">
-          <div className="mr-eyebrow mx-auto mb-7 inline-flex items-center gap-2 lg:mx-0">
-            <span className="mr-live-dot" />
-            <Sparkles size={13} /> A BETTER WAY TO DISCOVER FILM
+    <section
+      id="spotlight"
+      className="cinema-hero relative isolate overflow-hidden px-4 pb-12 pt-24 sm:px-6 sm:pb-14 sm:pt-24 lg:px-10 lg:pt-24"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <div className="cinema-hero-backdrop" style={activeBackdrop ? { backgroundImage: `url("${activeBackdrop}")` } : undefined} />
+      <div className="cinema-hero-grain" aria-hidden="true" />
+      <div className="cinema-hero-spot cinema-hero-spot-left" aria-hidden="true" />
+      <div className="cinema-hero-spot cinema-hero-spot-right" aria-hidden="true" />
+
+      <div className="relative z-10 mx-auto max-w-[1600px]">
+        <div className="cinema-hero-heading mx-auto max-w-4xl text-center">
+          <div className="cinema-kicker mx-auto mb-5 inline-flex items-center gap-2">
+            <span className="cinema-kicker-dot" />
+            <Clapperboard size={13} /> THE MOVIE RADAR <span className="cinema-kicker-divider">/</span> LIVE DISCOVERY
           </div>
-          <h1 className="mr-display text-5xl font-semibold leading-[0.94] tracking-[-0.065em] text-white sm:text-7xl lg:text-[clamp(4.5rem,7.2vw,7.5rem)]">
-            Find your
-            <span className="mr-title-gradient block">next obsession.</span>
+          <h1 className="cinema-hero-title">
+            Trending <span>Now.</span>
           </h1>
-          <p className="mx-auto mt-7 max-w-[480px] text-base leading-7 text-white/60 sm:text-lg lg:mx-0">
-            Thoughtful recommendations, standout films, and a better way to decide what to watch next.
+          <p className="cinema-hero-subtitle mx-auto mt-4 max-w-2xl">
+            Every frame has a story. Roll through what&apos;s moving, find your next obsession, and let the night choose the film.
           </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
-            <Link href="#discover" className="mr-primary-button inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-white">
-              <Play size={16} fill="currentColor" /> Explore movies <ArrowUpRight size={16} />
-            </Link>
-            <Link href="#recommendations" className="mr-secondary-button inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-white/85">
-              <Sparkles size={16} /> Find my vibe
-            </Link>
-          </div>
-          <div className="mt-10 flex items-center justify-center gap-6 lg:justify-start">
-            <div className="flex -space-x-2">
-              {FEATURED.slice(0, 4).map((movie) => <img key={movie.id} src={imageUrl(movie.poster)} alt="" className="h-9 w-7 rounded-md border border-[#10131c] object-cover shadow-lg" />)}
-            </div>
-            <div className="text-left"><div className="flex items-center gap-1 text-xs font-semibold text-white"><Star size={12} fill="#a5f3fc" className="text-cyan-200" /> Curated for curious minds</div><p className="mt-1 text-[11px] tracking-wide text-white/40">YOUR NEXT GREAT FILM STARTS HERE</p></div>
+          <div className="cinema-hero-meta mt-6 flex flex-wrap items-center justify-center gap-3">
+            <span><span className="cinema-meta-live" /> Movie radar</span>
+            <span className="cinema-meta-divider" />
+            <span>{films.length ? `${films.length} films in rotation` : "Curated cinema"}</span>
+            <span className="cinema-meta-divider" />
+            <span>Built for the big screen</span>
           </div>
         </div>
 
-        <div className="relative mx-auto mt-6 h-[390px] w-full max-w-[680px] sm:h-[500px] lg:mt-0 lg:h-[620px]" aria-label="Interactive 3D movie carousel">
-          <div className="mr-carousel-label absolute left-1/2 top-0 z-20 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-100/80">
-            <Clapperboard size={13} /> Rotate the collection <span className="text-white/30">↔</span>
-          </div>
-          <div
-            className={`mr-carousel-stage absolute inset-0 ${dragging ? "is-dragging" : ""}`}
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
-            onPointerCancel={onPointerUp}
-            onLostPointerCapture={onPointerUp}
-            role="group"
-            tabIndex={0}
-            onKeyDown={(event) => {
-              if (event.key === "ArrowLeft") setRotation((value) => value - 18);
-              if (event.key === "ArrowRight") setRotation((value) => value + 18);
-            }}
-            aria-label="Interactive 3D movie carousel. Drag or use the left and right arrow keys to rotate."
-          >
-            <div className="mr-carousel-floor" />
-            <div className="mr-carousel-wheel" style={{ transform: `translateZ(-260px) rotateY(${rotation}deg)` }}>
-              {FEATURED.map((movie, index) => {
-                const angle = index * (360 / FEATURED.length);
+        {films.length > 0 ? (
+          <div className="cinema-roll-wrap mx-auto mt-8 max-w-[1500px] sm:mt-10">
+            <div
+              className={`cinema-roll-stage ${dragging ? "is-dragging" : ""}`}
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+              onPointerCancel={onPointerUp}
+              onLostPointerCapture={onPointerUp}
+              onKeyDown={(event) => {
+                if (event.key === "ArrowLeft") step(-1);
+                if (event.key === "ArrowRight") step(1);
+              }}
+              onFocus={() => setPaused(true)}
+              onBlur={() => setPaused(false)}
+              role="group"
+              tabIndex={0}
+              aria-label="Interactive 3D movie roll. Drag or use the arrow keys to browse films."
+            >
+              <div className="cinema-roll-light" aria-hidden="true" />
+              {films.map((movie, index) => {
+                const offset = getOffset(index, activeIndex, films.length);
+                const distance = Math.abs(offset);
+                if (distance > 3) return null;
+
+                const desktopX = offset * 250 + dragOffset * 0.28;
+                const mobileX = offset * 145 + dragOffset * 0.28;
+                const scale = distance === 0 ? 1 : distance === 1 ? 0.86 : distance === 2 ? 0.7 : 0.56;
+                const opacity = distance === 0 ? 1 : distance === 1 ? 0.9 : distance === 2 ? 0.55 : 0.26;
+                const genre = getMovieGenre(movie);
+                const isActive = offset === 0;
+
                 return (
                   <Link
-                    href={`/movie/${movie.id}`}
                     key={movie.id}
+                    href={`/movie/${movie.id}`}
                     draggable={false}
                     onClick={(event) => { if (moved.current) event.preventDefault(); }}
-                    className="mr-movie-card group"
-                    style={{ transform: `rotateY(${angle}deg) translateZ(clamp(180px, 27vw, 285px))` }}
-                    aria-label={`View ${movie.title}, rated ${movie.rating}`}
+                    className={`cinema-roll-card ${isActive ? "is-active" : ""}`}
+                    style={{
+                      "--roll-x-desktop": `${desktopX}px`,
+                      "--roll-x-mobile": `${mobileX}px`,
+                      zIndex: 40 - distance * 6,
+                      opacity,
+                      transform: `translate(-50%, -50%) rotateY(${offset * -23}deg) translateZ(${-distance * 64}px) scale(${scale})`,
+                      pointerEvents: distance > 2 ? "none" : "auto",
+                    } as CSSProperties}
+                    aria-label={`View ${movie.title}, rating ${Number(movie.vote_average || 0).toFixed(1)}`}
+                    tabIndex={distance <= 1 ? 0 : -1}
                   >
-                    <img src={imageUrl(movie.poster)} alt={`${movie.title} poster`} draggable={false} />
-                    <div className="mr-card-shade" />
-                    <div className="mr-card-info"><span className="mr-card-genre">{movie.genre}</span><h2>{movie.title}</h2><div className="flex items-center justify-between text-xs text-white/65"><span>{movie.year}</span><span className="flex items-center gap-1"><Star size={11} fill="#a5f3fc" className="text-cyan-200" /> {movie.rating}</span></div></div>
+                    <Image
+                      src={getPosterUrl(movie.poster_path, "w500")}
+                      alt={`${movie.title} poster`}
+                      width={680}
+                      height={1020}
+                      sizes="(max-width: 640px) 57vw, (max-width: 1024px) 35vw, 24vw"
+                      unoptimized
+                      draggable={false}
+                    />
+                    <div className="cinema-roll-vignette" />
+                    <div className="cinema-roll-topline">
+                      <span className="cinema-roll-genre">{genre}</span>
+                      <span className="cinema-roll-rating"><Star size={12} fill="currentColor" /> {Number(movie.vote_average || 0).toFixed(1)}</span>
+                    </div>
+                    <div className="cinema-roll-card-info">
+                      <span className="cinema-roll-year"><span className="cinema-year-dot" /> {getMovieYear(movie)}</span>
+                      <h2>{movie.title}</h2>
+                      <p>{movie.overview || "A story waiting to be discovered."}</p>
+                      <span className="cinema-roll-open"><Play size={12} fill="currentColor" /> Explore film <ArrowRight size={13} /></span>
+                    </div>
+                    {isActive && <span className="cinema-roll-active-line" />}
                   </Link>
                 );
               })}
             </div>
+
+            <button type="button" className="cinema-roll-arrow cinema-roll-prev" onClick={() => step(-1)} aria-label="Previous movie">
+              <ChevronLeft size={20} />
+            </button>
+            <button type="button" className="cinema-roll-arrow cinema-roll-next" onClick={() => step(1)} aria-label="Next movie">
+              <ChevronRight size={20} />
+            </button>
+
+            <div className="cinema-roll-controls">
+              <button type="button" className="cinema-roll-control" onClick={() => step(-1)} aria-label="Previous film"><ChevronLeft size={16} /></button>
+              <div className="cinema-roll-progress" aria-live="polite">
+                <span className="cinema-roll-current">{String(activeIndex + 1).padStart(2, "0")}</span>
+                <span className="cinema-roll-progress-track"><span style={{ width: `${((activeIndex + 1) / films.length) * 100}%` }} /></span>
+                <span className="cinema-roll-total">{String(films.length).padStart(2, "0")}</span>
+              </div>
+              <button type="button" className="cinema-roll-control" onClick={() => step(1)} aria-label="Next film"><ChevronRight size={16} /></button>
+              <span className="cinema-roll-hint"><span className="cinema-hint-drag">↔</span> DRAG TO EXPLORE</span>
+            </div>
+
+            {active && (
+              <div className="cinema-selected-movie mx-auto mt-7 flex max-w-2xl flex-col items-center gap-3 text-center sm:flex-row sm:justify-center sm:text-left">
+                <div className="cinema-selected-mark"><Sparkles size={15} /></div>
+                <div className="min-w-0">
+                  <p className="cinema-selected-label">CURRENTLY IN FOCUS</p>
+                  <p className="cinema-selected-title">{active.title} <span>· {getMovieYear(active)}</span></p>
+                </div>
+                <Link href={`/movie/${active.id}`} className="cinema-selected-link">View film <ArrowDownRight size={15} /></Link>
+              </div>
+            )}
           </div>
-          <button
-            type="button"
-            className="mr-carousel-control absolute left-0 top-1/2 z-30 -translate-y-1/2"
-            aria-label="Rotate movie carousel left"
-            onClick={() => setRotation((value) => value - 360 / FEATURED.length)}
-          ><ChevronLeft size={19} /></button>
-          <button
-            type="button"
-            className="mr-carousel-control absolute right-0 top-1/2 z-30 -translate-y-1/2"
-            aria-label="Rotate movie carousel right"
-            onClick={() => setRotation((value) => value + 360 / FEATURED.length)}
-          ><ChevronRight size={19} /></button>
-          <div className="pointer-events-none absolute bottom-0 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-white/35"><span className="h-px w-8 bg-white/15" /> HANDPICKED WORLDS <span className="h-px w-8 bg-white/15" /></div>
+        ) : (
+          <div className="mx-auto mt-10 max-w-xl rounded-3xl border border-white/10 bg-white/[0.03] p-10 text-center text-white/60">
+            <Compass className="mx-auto mb-3" /> Movies are loading. Please refresh in a moment.
+          </div>
+        )}
+
+        <div className="cinema-hero-bottom mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-center">
+          <Link href="#discover" className="cinema-bottom-link">Explore the library <ArrowDownRight size={14} /></Link>
+          <span className="cinema-bottom-separator" />
+          <Link href="#recommendations" className="cinema-bottom-link"><Sparkles size={14} /> Let AI find your vibe <ArrowRight size={14} /></Link>
         </div>
       </div>
-      <a href="#recommendations" className="mr-scroll-cue absolute bottom-4 left-1/2 hidden -translate-x-1/2 items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-white/40 transition hover:text-cyan-100 sm:flex">Scroll to explore <ArrowDown size={13} /></a>
     </section>
   );
 }

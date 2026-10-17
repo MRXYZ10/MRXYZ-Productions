@@ -1,13 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { getPosterUrl } from "@/types/movie";
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles, Play, Star, Clock } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Movie } from "@/types/movie";
+import { MoviePosterGrid } from "@/components/ui/movie-poster-grid";
 
 // =============================================================================
 // Mood data — metadata for matching HSL styling and visual effects
@@ -120,7 +118,7 @@ export function MoodSelector() {
   }, [selectedMood]);
 
   return (
-    <section className="relative px-4 py-20 sm:px-6 lg:px-8 overflow-hidden">
+    <section className="cinema-mood-section relative px-4 py-20 sm:px-6 lg:px-8 overflow-hidden">
       {/* Background glow effect based on selected mood */}
       <AnimatePresence>
         {activeMood && (
@@ -286,68 +284,12 @@ export function MoodSelector() {
                   ))}
                 </div>
               ) : movies.length > 0 ? (
-                /* Dynamic Movie Cards Grid */
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto">
-                  {movies.map((movie, i) => (
-                    <motion.div
-                      key={movie.id}
-                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      transition={{
-                        duration: 0.4,
-                        delay: i * 0.05,
-                        ease: [0.22, 1, 0.36, 1],
-                      }}
-                      className="group relative"
-                    >
-                      <Link href={`/movie/${movie.id}`}>
-                        <div className="relative aspect-[2/3] rounded-xl overflow-hidden border border-white/[0.08] bg-white/[0.03] cursor-pointer shadow-md transition-shadow group-hover:shadow-[0_0_20px_rgba(1,180,228,0.15)]">
-                          {/* Poster image */}
-                          <Image
-                            src={getPosterUrl(movie.poster_path, "w342")}
-                            alt={movie.title}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                            sizes="(max-width: 640px) 50vw, 25vw"
-                            unoptimized
-                          />
-
-                          {/* Gradient overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent" />
-
-                          {/* Hover overlay light glow */}
-                          <div className="absolute inset-0 bg-cine-blue/0 group-hover:bg-cine-blue/5 transition-colors duration-300" />
-
-                          {/* Play button on hover */}
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-lg">
-                              <Play className="w-5 h-5 text-white fill-white ml-0.5" />
-                            </div>
-                          </div>
-
-                          {/* Rating badge */}
-                          <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/70 backdrop-blur-sm rounded-lg px-2 py-1 border border-white/[0.05]">
-                            <Star className="w-3 h-3 text-cine-amber fill-cine-amber" />
-                            <span className="text-[10px] font-bold text-white">
-                              {(movie.vote_average ?? 0).toFixed(1)}
-                            </span>
-                          </div>
-
-                          {/* Movie info at bottom */}
-                          <div className="absolute bottom-0 left-0 right-0 p-3 select-none">
-                            <h4 className="text-sm font-bold text-white leading-tight mb-1 line-clamp-2 transition-colors group-hover:text-cine-blue">
-                              {movie.title}
-                            </h4>
-                            <div className="flex items-center gap-2 text-[10px] text-white/50">
-                              <Clock className="w-3 h-3" />
-                              <span>{movie.release_date ? movie.release_date.split("-")[0] : "N/A"}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </div>
+                <MoviePosterGrid
+                  movies={movies}
+                  tone="violet"
+                  ariaLabel={`Recommendations for ${MOODS[selectedMood].label} mood`}
+                  emptyMessage="No recommendations found for this mood."
+                />
               ) : (
                 /* No Results Empty State */
                 <div className="text-center py-10">

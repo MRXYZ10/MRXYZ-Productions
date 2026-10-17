@@ -29,7 +29,7 @@ The UI has local sample movies, so you can explore the basic experience before m
 
 ## Signature 3D experience
 
-The 3D poster carousel is a core part of the design and has intentionally been retained. Rotate it with mouse/touch drag, the left/right on-screen controls, or the keyboard arrow keys when the carousel is focused. The cleanup removes side-demo features and large unused assets, not the 3D identity.
+The landing page uses a live-data-driven 3D coverflow roll. The front card gets full focus while neighbouring films tilt back in perspective; the roll supports gentle auto-rotation, mouse/touch drag, dedicated controls and keyboard arrow keys when focused. On narrow screens the card spacing and dimensions adapt for swipe browsing. The dark-noir visual system uses champagne-gold and ultraviolet accents across navigation, section headings and poster cards.
 
 ## Optional API keys
 
@@ -44,3 +44,7 @@ Never commit `.env.local` or put private keys in client-side code. For public re
 Deploy the Next.js app to Vercel or another Node.js host and configure the environment variables in the host's project settings. The Python search microservice in `backend/` is optional; the main site should not require it to start.
 
 Before production deployment, run `npm run typecheck`, `npm run lint`, and `npm run build` locally.
+
+## Section-wide 3D movie roll
+
+The home page uses the same reusable 3D coverflow for Trending, Now Playing, Upcoming Releases, Critics' Picks, mood recommendations, and the saved Watchlist. Each area has its own accent tone. Carousels pause while hovered or out of view, support drag/swipe and arrow keys, and respect reduced-motion preferences.

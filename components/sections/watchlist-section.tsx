@@ -2,14 +2,13 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Bookmark, Check, Search, Trash2, X } from "lucide-react";
+import { Bookmark, Search, Trash2, X } from "lucide-react";
 import { useAuth } from "@/components/providers/auth-provider";
-import { getPosterUrl, MOCK_GENRES } from "@/types/movie";
-import type { Movie } from "@/types/movie";
+import { MOCK_GENRES } from "@/types/movie";
+import { MoviePosterGrid } from "@/components/ui/movie-poster-grid";
 
 export function WatchlistSection() {
-  const { watchlist, clearWatchlist, toggleWatchlist, loading } = useAuth();
+  const { watchlist, clearWatchlist, loading } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("All genres");
   const [sortBy, setSortBy] = useState<"recent" | "rating" | "title">("recent");
@@ -41,15 +40,15 @@ export function WatchlistSection() {
   };
 
   return (
-    <section id="watchlist" className="px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
+    <section id="watchlist" className="cinema-section cinema-watchlist-section px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
       <div className="mx-auto max-w-[1440px]">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="mb-3 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-100/65">
               <Bookmark size={14} /> Your personal collection
             </div>
-            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">Your watchlist</h2>
-            <p className="mt-2 text-sm leading-6 text-white/50">Keep the films you want to come back to, all in one place.</p>
+            <h2 className="cinema-section-title text-3xl font-semibold tracking-tight text-white sm:text-4xl">Your watchlist</h2>
+            <p className="cinema-section-description mt-2 text-sm leading-6">Keep the films you want to come back to, all in one place.</p>
           </div>
           <div className="flex items-center gap-3">
             <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/60">
@@ -99,24 +98,13 @@ export function WatchlistSection() {
             </div>
 
             {filteredMovies.length ? (
-              <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4 xl:grid-cols-5">
-                {filteredMovies.map((movie: Movie) => (
-                  <article key={movie.id} className="group min-w-0">
-                    <Link href={`/movie/${movie.id}`} className="relative block aspect-[2/3] overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.04] transition duration-300 group-hover:-translate-y-1 group-hover:border-cyan-200/30">
-                      <Image src={getPosterUrl(movie.poster_path, "w500")} alt={`${movie.title} poster`} fill unoptimized sizes="(max-width: 640px) 45vw, (max-width: 1024px) 28vw, 18vw" className="object-cover transition duration-500 group-hover:scale-[1.035]" />
-                      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/90 to-transparent" />
-                      <span className="absolute bottom-3 left-3 right-3 line-clamp-2 text-sm font-semibold text-white">{movie.title}</span>
-                    </Link>
-                    <div className="mt-3 flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <Link href={`/movie/${movie.id}`} className="block truncate text-sm font-medium text-white/90 hover:text-cyan-200">{movie.title}</Link>
-                        <p className="mt-1 text-xs text-white/45">{movie.release_date?.slice(0, 4) || "—"}</p>
-                      </div>
-                      <button onClick={() => void toggleWatchlist(movie)} title="Remove from watchlist" aria-label={`Remove ${movie.title} from watchlist`} className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-cyan-300/20 bg-cyan-300/10 text-cyan-200 transition hover:border-red-300/25 hover:bg-red-300/10 hover:text-red-200"><Check size={15} /></button>
-                    </div>
-                  </article>
-                ))}
-              </div>
+              <MoviePosterGrid
+                movies={filteredMovies}
+                actionMode="remove"
+                tone="gold"
+                ariaLabel="Your saved watchlist"
+                emptyMessage="No saved films match these filters."
+              />
             ) : (
               <div className="rounded-xl border border-white/10 bg-white/[0.02] px-6 py-10 text-center">
                 <p className="text-sm text-white/55">No saved films match these filters.</p>
