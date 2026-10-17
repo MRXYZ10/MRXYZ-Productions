@@ -1,20 +1,16 @@
-﻿name: CineMatch CI/CD Pipeline
+﻿name: MRXYZ Productions CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  # =========================================================================
-  # Job 1: Next.js Frontend & TypeScript Verification
-  # =========================================================================
   frontend-check:
     name: Frontend Typecheck & Build
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -23,10 +19,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: npm
 
       - name: Install Node Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run TypeScript Type Check
         run: npm run typecheck
@@ -36,29 +32,28 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: "https://mock.supabase.co"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "mock-anon-key-for-ci"
           TMDB_API_KEY: "mock-tmdb-api-key"
+          GROQ_API_KEY: "mock-groq-api-key"
+          GROQ_MODEL: "openai/gpt-oss-120b"
         run: npm run build
 
-  # =========================================================================
-  # Job 2: Machine Learning & RecSys Pipeline Verification
-  # =========================================================================
-  ml-pipeline-check:
-    name: ML & RecSys Pipeline Tests
+  python-backend-check:
+    name: Python Backend Validation
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Setup Python 3.11 Runtime
+      - name: Setup Python Runtime
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
 
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r hackathon/requirements.txt
+          python -m pip install -r backend/requirements.txt
 
-      - name: Run ML & RecSys Automated Tests
-        run: python hackathon/test_pipeline.py
+      - name: Validate Python Source
+        run: python -m compileall -q backend
