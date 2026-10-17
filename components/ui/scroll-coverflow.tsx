@@ -319,11 +319,13 @@ export function ScrollCoverflow({
     const rect = stage.getBoundingClientRect();
     s.w = rect.width;
     s.h = rect.height;
-    const cardH = Math.min(rect.height * 0.9, rect.width * (rect.width < 720 ? 0.68 : 0.4) * 1.5);
+    const cardH = variant === "hero"
+      ? Math.min(window.innerHeight * (isMobile ? 0.69 : 0.79), rect.height * (isMobile ? 1.04 : 1.18))
+      : Math.min(rect.height * 0.9, rect.width * (rect.width < 720 ? 0.68 : 0.4) * 1.5);
     s.cardW = cardH / 1.5;
     stage.style.setProperty("--card-h", `${cardH.toFixed(0)}px`);
     measureGeo();
-  }, [measureGeo]);
+  }, [measureGeo, variant, isMobile]);
 
   useLayoutEffect(() => {
     measure();

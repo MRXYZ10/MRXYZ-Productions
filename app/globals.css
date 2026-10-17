@@ -584,3 +584,96 @@ body.cinema-app {
    v3 — scroll performance
    ============================================================================ */
 .sc-stage { contain: layout style; }
+
+/* ==========================================================================
+   MRXYZ Cinema refresh — full-frame posters, crisp surfaces, restrained UI
+   ========================================================================== */
+.sc-ambient-layer { filter: none !important; }
+.sc-floor { filter: none !important; opacity: .22; }
+.sc-ambient-wash {
+  background: linear-gradient(180deg, rgba(7,6,9,.24), rgba(7,6,9,.08) 42%, rgba(7,6,9,.58));
+}
+.sc-grain { opacity: .012; }
+
+/* The hero is a poster-first experience: remove the marketing headline stack. */
+.sc-hero .sc-header { display: none; }
+.sc-hero .sc-stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  perspective: 1800px;
+  perspective-origin: 50% 45%;
+  overflow: visible;
+}
+.sc-hero .sc-card { width: calc(var(--card-h) * .6666667); }
+.sc-hero .sc-poster {
+  border-radius: clamp(12px, 1.2vw, 20px);
+  border-color: rgba(255,255,255,.18);
+  box-shadow: 0 28px 72px -26px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.035);
+}
+.sc-hero .sc-img { transform: none; }
+.sc-hero .sc-poster::after {
+  background: linear-gradient(180deg, rgba(0,0,0,.12), transparent 19%, transparent 76%, rgba(0,0,0,.2));
+}
+.sc-hero .sc-badges { top: 1rem; left: 1rem; right: 1rem; }
+.sc-hero .sc-genre, .sc-hero .sc-rating {
+  background: rgba(8,8,10,.88);
+  border-color: rgba(255,255,255,.2);
+  backdrop-filter: none;
+}
+
+/* Compact, solid metadata bar: no glass blur, oversized counter, or synopsis. */
+.sc-hero .sc-hud {
+  width: min(100% - 2.5rem, 1280px);
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 1rem 1.5rem;
+  padding: .85rem 0 1.05rem;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.sc-hero .sc-hud::before,
+.sc-hero .sc-hud-count,
+.sc-hero .sc-hud-meta,
+.sc-hero .sc-hud-overview,
+.sc-hero .sc-hint { display: none; }
+.sc-hero .sc-hud-title {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.1vw, 2rem);
+  letter-spacing: -.04em;
+  white-space: normal;
+}
+.sc-hero .sc-hud-actions { justify-content: flex-end; }
+.sc-hero .sc-cta {
+  height: 2.65rem;
+  border-radius: 7px;
+  padding-inline: 1.1rem;
+  background: #f5d58e;
+  box-shadow: none;
+}
+.sc-hero .sc-cta:hover { background: #ffe6ad; transform: translateY(-1px); }
+.sc-hero .sc-save { border-radius: 7px; background: #111116; }
+.sc-hero .sc-hud-rail { left: 0; right: 0; bottom: 0; height: 2px; }
+
+/* Clean editorial ticker removed from the hero; section content keeps its hierarchy. */
+.cinema-marquee { display: none !important; }
+
+@media (max-width: 720px) {
+  .sc-hero .sc-pin { padding-top: calc(var(--nav-h) - .2rem); }
+  .sc-hero .sc-stage { perspective: 1250px; }
+  .sc-hero .sc-hud {
+    width: calc(100% - 1.5rem);
+    grid-template-columns: minmax(0,1fr) auto;
+    gap: .6rem;
+    padding: .65rem 0 .9rem;
+  }
+  .sc-hero .sc-hud-title { font-size: clamp(1rem, 4.3vw, 1.3rem); }
+  .sc-hero .sc-hud-actions { gap: .4rem; }
+  .sc-hero .sc-cta { height: 2.4rem; padding-inline: .75rem; font-size: .72rem; }
+  .sc-hero .sc-save { width: 2.4rem; height: 2.4rem; }
+  .sc-hero .sc-poster { border-radius: 12px; }
+}
+@media (max-height: 650px) and (min-width: 721px) {
+  .sc-hero .sc-hud { padding-block: .45rem .7rem; }
+}
+

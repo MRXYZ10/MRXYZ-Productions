@@ -1,6 +1,6 @@
 "use client";
 
-import { Clapperboard, Compass } from "lucide-react";
+import { Compass } from "lucide-react";
 import type { Movie } from "@/types/movie";
 import { ScrollCoverflow } from "@/components/ui/scroll-coverflow";
 
@@ -27,19 +27,6 @@ export function Hero({ movies }: HeroProps) {
       tone="gold"
       movies={films}
       ariaLabel="Trending films"
-      header={
-        <div className="hero-head">
-          <div className="hero-kicker">
-            <span className="hero-kicker-dot" />
-            <Clapperboard size={12} /> MRXYZ Productions <i /> Live movie radar
-          </div>
-          <h1 className="hero-title">
-            <span className="hero-title-line">Cinema,</span>
-            <span className="hero-title-line hero-title-accent">in motion.</span>
-          </h1>
-          <p className="hero-sub">Scroll to roll through what&apos;s trending right now. Let the night choose the film.</p>
-        </div>
-      }
     />
   );
 }
