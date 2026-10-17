@@ -118,7 +118,7 @@ export function MoodSelector() {
   }, [selectedMood]);
 
   return (
-    <section className="cinema-mood-section relative px-4 py-20 sm:px-6 lg:px-8 overflow-hidden">
+    <section className="cinema-mood-section relative px-4 pt-20 pb-6 sm:px-6 lg:px-8 overflow-x-clip">
       {/* Background glow effect based on selected mood */}
       <AnimatePresence>
         {activeMood && (
@@ -285,7 +285,7 @@ export function MoodSelector() {
                 </div>
               ) : movies.length > 0 ? (
                 <MoviePosterGrid
-                  movies={movies}
+                  movies={movies.slice(0, 8)}
                   tone="violet"
                   ariaLabel={`Recommendations for ${MOODS[selectedMood].label} mood`}
                   emptyMessage="No recommendations found for this mood."

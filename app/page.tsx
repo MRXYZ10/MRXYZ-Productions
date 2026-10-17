@@ -5,6 +5,7 @@ import { DiscoverSection } from "@/components/sections/discover-section";
 import { TrendingSection } from "@/components/sections/trending-section";
 import { ReleaseSection } from "@/components/sections/release-section";
 import { WatchlistSection } from "@/components/sections/watchlist-section";
+import { Marquee } from "@/components/ui/marquee";
 import { Footer } from "@/components/sections/footer";
 import { getTrending, getTopRated, getNowPlaying, getUpcoming } from "@/lib/tmdb";
 import { MOCK_MOVIES } from "@/types/movie";
@@ -49,6 +50,7 @@ export default async function Home() {
       <Navbar />
       <main id="top">
         <Hero movies={spotlight} />
+        <Marquee />
         <TrendingSection movies={trending} />
         <ReleaseSection
           id="latest-releases"

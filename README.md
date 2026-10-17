@@ -54,3 +54,15 @@ Movie catalogue data and artwork are provided by TMDB. This independent project 
 ### Section-wide 3D movie coverflow
 
 Trending, current releases, upcoming titles, critics' picks, AI mood results, and the saved watchlist now use interactive 3D rolling carousels. Each section has a different accent treatment; use the arrows, drag/swipe, or keyboard arrows to navigate. Autoplay only runs while the carousel is in view and respects reduced-motion settings.
+
+## Scroll Cinema (3D coverflow)
+
+Every film collection (hero, trending, releases, critics' picks, mood picks, watchlist) is a
+scroll-linked 3D coverflow — `components/ui/scroll-coverflow.tsx`, styled in `app/cinema.css`.
+
+- **Laptop:** just scroll (wheel / trackpad). The section pins and the films rotate.
+- **Phone:** swipe or scroll. Horizontal swipes also rotate the films; vertical scroll moves the page.
+- No arrow buttons, no autoplay timers. Keyboard: focus the stage and use ← →.
+- Tweak scroll length per film with `STEP_VH_DESKTOP` / `STEP_VH_MOBILE` at the top of the component.
+- Performance: one `requestAnimationFrame` loop per *visible* carousel writes transforms straight to the DOM
+  (no React re-render while scrolling); off-screen carousels do no work; only ~9 cards per carousel are painted.

@@ -40,7 +40,7 @@ export function WatchlistSection() {
   };
 
   return (
-    <section id="watchlist" className="cinema-section cinema-watchlist-section px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
+    <section id="watchlist" className="cinema-section cinema-watchlist-section px-5 pt-16 pb-10 sm:px-8 lg:px-12 lg:pt-20">
       <div className="mx-auto max-w-[1440px]">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>

@@ -39,7 +39,9 @@ async function tmdbFetch<T>(endpoint: string, params: Record<string, string> = {
     // alternate-DNS transport below rather than returning sample movies.
     const res = await fetch(url.toString(), {
       next: { revalidate: 3600 }, // cache for 1 hour
-      signal: AbortSignal.timeout(8000),
+      // Some networks stall rather than reject failed TMDB routes. Fail fast so
+      // the known-good CDN retry can take over without blocking first render.
+      signal: AbortSignal.timeout(2800),
     });
 
     if (!res.ok) {
@@ -90,41 +92,40 @@ async function getPublicTmdbIPv4(): Promise<string[]> {
     "https://dns.google/resolve?name=api.themoviedb.org&type=A",
     "https://cloudflare-dns.com/dns-query?name=api.themoviedb.org&type=A",
   ];
-
-  for (const resolverUrl of resolvers) {
-    try {
-      const response = await fetch(resolverUrl, {
-        cache: "no-store",
-        headers: { accept: "application/dns-json, application/json" },
-        signal: AbortSignal.timeout(5000),
-      });
-      if (!response.ok) continue;
-      const payload = (await response.json()) as DNSResponse;
-      const resolvedAddresses = (payload.Answer ?? [])
-        .filter((answer) => answer.type === 1 && typeof answer.data === "string")
-        .map((answer) => answer.data as string)
-        .filter((address) => /^(?:\d{1,3}\.){3}\d{1,3}$/.test(address));
-      if (resolvedAddresses.length) {
-        // The user verified these three addresses with curl --resolve; try
-        // those known-working endpoints first, then current DoH answers.
-        const knownWorking = ["18.172.213.43", "18.172.213.28", "18.172.213.119"];
-        const addresses = [...new Set([...knownWorking, ...resolvedAddresses])];
-        publicIpCache = { addresses, expiresAt: Date.now() + 60 * 1000 };
-        return addresses;
+  const resolved = await Promise.all(
+    resolvers.map(async (resolverUrl) => {
+      try {
+        const response = await fetch(resolverUrl, {
+          cache: "no-store",
+          headers: { accept: "application/dns-json, application/json" },
+          signal: AbortSignal.timeout(1800),
+        });
+        if (!response.ok) return [] as string[];
+        const payload = (await response.json()) as DNSResponse;
+        return (payload.Answer ?? [])
+          .filter((answer) => answer.type === 1 && typeof answer.data === "string")
+          .map((answer) => answer.data as string)
+          .filter((address) => /^(?:\d{1,3}\.){3}\d{1,3}$/.test(address));
+      } catch {
+        return [] as string[];
       }
-    } catch {
-      // Try the next public DNS-over-HTTPS resolver.
-    }
-  }
+    }),
+  );
 
-  // Last-known CDN answers verified by the user with a successful request.
-  // CDN addresses can rotate; dynamically resolved addresses are appended above.
-  const lastKnown = ["18.172.213.43", "18.172.213.28", "18.172.213.119"];
-  publicIpCache = { addresses: lastKnown, expiresAt: Date.now() + 60 * 1000 };
-  return lastKnown;
+  // These CDN addresses were verified by the project owner with curl --resolve.
+  // Keep them first, but allow DNS-over-HTTPS to append current CDN addresses.
+  const knownWorking = ["18.172.213.43", "18.172.213.28", "18.172.213.119"];
+  const addresses = [...new Set([...knownWorking, ...resolved.flat()])];
+  publicIpCache = { addresses, expiresAt: Date.now() + 60 * 1000 };
+  return addresses;
 }
 
-function httpsGetUsingIp(url: URL, ip: string): Promise<unknown> {
+function httpsGetUsingIp(
+  url: URL,
+  ip: string,
+  timeoutMs = 3800,
+  signal?: AbortSignal,
+): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const request = https.request(
       {
@@ -134,7 +135,8 @@ function httpsGetUsingIp(url: URL, ip: string): Promise<unknown> {
         path: `${url.pathname}${url.search}`,
         method: "GET",
         headers: { accept: "application/json" },
-        timeout: 9000,
+        timeout: timeoutMs,
+        ...(signal ? { signal } : {}),
         // Keep hostname as api.themoviedb.org for TLS certificate validation,
         // but route the socket to the known reachable CDN IP.
         // Node may call custom DNS lookups with { all: true } internally.
@@ -179,15 +181,40 @@ function httpsGetUsingIp(url: URL, ip: string): Promise<unknown> {
 }
 
 async function fetchThroughPublicDns(url: URL): Promise<unknown> {
-  const addresses = await getPublicTmdbIPv4();
   const errors: string[] = [];
+  const knownPrimary = "18.172.213.43";
 
-  for (const address of addresses) {
+  // The owner verified this address manually. Try it before requesting public DNS,
+  // because blocked DoH routes can otherwise add several seconds of latency.
+  try {
+    return await httpsGetUsingIp(url, knownPrimary, 3800);
+  } catch (error) {
+    if (error instanceof TMDBHttpError) throw error;
+    errors.push(`${knownPrimary}: ${safeErrorMessage(error)}`);
+  }
+
+  const addresses = (await getPublicTmdbIPv4()).filter((address) => address !== knownPrimary);
+  if (addresses.length) {
+    // Try alternate CDN IPs concurrently, so one stale/unreachable edge doesn't
+    // block every other address for its full timeout. Abort remaining sockets as
+    // soon as the first valid HTTPS response arrives.
+    const controller = new AbortController();
+    const attempts = addresses.slice(0, 5).map(async (address) => {
+      try {
+        const data = await httpsGetUsingIp(url, address, 3800, controller.signal);
+        return { address, data };
+      } catch (error) {
+        errors.push(`${address}: ${safeErrorMessage(error)}`);
+        throw error;
+      }
+    });
+
     try {
-      return await httpsGetUsingIp(url, address);
-    } catch (error) {
-      if (error instanceof TMDBHttpError) throw error;
-      errors.push(`${address}: ${safeErrorMessage(error)}`);
+      const winner = await Promise.any(attempts);
+      controller.abort();
+      return winner.data;
+    } catch {
+      controller.abort();
     }
   }
 
