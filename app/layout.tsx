@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { FloatingAiAssistant } from "@/components/ui/glowing-ai-chat-assistant";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { SmoothScroll } from "@/components/providers/smooth-scroll";
 import "./globals.css";
 
 const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display", display: "swap" });
@@ -39,6 +40,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="cinema-app min-h-full flex flex-col bg-background text-foreground">
+        <SmoothScroll />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

@@ -62,15 +62,17 @@ body.cinema-app {
 /* ambient colour that follows the focused film */
 .sc-ambient { position: absolute; inset: 0; z-index: -3; overflow: hidden; }
 .sc-ambient-layer {
-  position: absolute; inset: -8%;
+  /* Rendered at ~1/4 size then scaled up: a 4x cheaper blur that looks identical.
+     Layers cross-fade with opacity only (compositor), never re-decoded mid-scroll. */
+  position: absolute; left: 0; top: 0; width: 26%; height: 26%;
+  transform: scale(3.85); transform-origin: 0 0;
   background-size: cover; background-position: center 30%;
-  /* A moderate blur retains the cinematic wash without expensive full-screen blur. */
-  filter: blur(18px) saturate(1.12);
-  opacity: .25;
-  transform: translateZ(0);
+  filter: blur(3px) saturate(1.1);
+  opacity: 0; transition: opacity .7s ease; will-change: opacity;
 }
-.sc-ambient-layer.is-cur { animation: sc-fade 1s var(--ease-out) both; }
-.sc-hero .sc-ambient-layer { opacity: .26; background-position: center 24%; }
+.sc-ambient-layer.is-on { opacity: .2; }
+.sc-hero .sc-ambient-layer { background-position: center 24%; }
+@media (max-width: 720px) { .sc-ambient-layer.is-on { opacity: .15; } }
 .sc-ambient-wash {
   position: absolute; inset: 0;
   background:
@@ -154,13 +156,14 @@ body.cinema-app {
 .sc-card {
   position: absolute; top: 50%; left: 50%;
   width: calc(var(--card-h) / 1.5); height: var(--card-h);
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-  --shade: 0; --focus: 0;
+  contain: layout style;
 }
+.sc-card[data-hidden="1"] { visibility: hidden; }
 .sc-card.is-near { will-change: transform, opacity; }
-.sc-card-tilt { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .22s var(--ease-out); }
-.sc-card.is-active .sc-card-tilt { transform: rotateY(calc(var(--mx) * 9deg)) rotateX(calc(var(--my) * -7deg)); }
+/* overlays get their own layers so their opacity never repaints the poster */
+.sc-card.is-near .sc-shade, .sc-card.is-near .sc-sheen, .sc-card.is-near .sc-edge { will-change: opacity; }
+.sc-shade, .sc-sheen, .sc-edge { opacity: 0; }
+.sc-card-tilt { position: relative; width: 100%; height: 100%; transition: transform .22s var(--ease-out); }
 
 .sc-poster {
   position: absolute; inset: 0; display: block; overflow: hidden; border-radius: clamp(14px, 1.7vw, 24px);
@@ -169,17 +172,15 @@ body.cinema-app {
   box-shadow: 0 0 0 1px rgba(255,255,255,.1), 0 26px 50px -22px rgba(0,0,0,.82);
   -webkit-tap-highlight-color: transparent;
 }
-.sc-img { object-fit: cover; pointer-events: none; transform: scale(calc(1.02 + (1 - var(--focus)) * .04)); }
+.sc-img { object-fit: cover; pointer-events: none; transform: scale(1.02); }
 .sc-poster::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(5,4,8,.5) 0%, transparent 24%, transparent 74%, rgba(5,4,8,.55) 100%); pointer-events: none; }
-.sc-shade { position: absolute; inset: 0; z-index: 2; background: #06050a; opacity: var(--shade); pointer-events: none; }
+.sc-shade { position: absolute; inset: 0; z-index: 2; background: #06050a; pointer-events: none; }
 .sc-sheen {
   position: absolute; inset: 0; z-index: 3; pointer-events: none;
-  opacity: calc(var(--focus) * .22);
-  background: radial-gradient(circle at calc(50% + var(--mx) * 90%) calc(30% + var(--my) * 80%), rgba(255,255,255,.85), transparent 55%);
+  background: radial-gradient(circle at 50% 30%, rgba(255,255,255,.85), transparent 55%);
 }
 .sc-edge {
   position: absolute; inset: 0; z-index: 4; border-radius: inherit; pointer-events: none;
-  opacity: var(--focus);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--a) 70%, transparent), inset 0 1px 0 rgba(255,255,255,.35);
 }
 .sc-badges { position: absolute; z-index: 5; top: .75rem; left: .75rem; right: .75rem; display: flex; align-items: center; justify-content: space-between; gap: .4rem; pointer-events: none; }
