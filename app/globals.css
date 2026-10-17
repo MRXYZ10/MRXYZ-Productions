@@ -1,0 +1,354 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+/* ============================================================================
+   MRXYZ Productions — Immersive Cinema Theme
+   Aesthetic: Editorial cinema meets immersive 3D discovery
+   ============================================================================ */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-heading: var(--font-sans);
+  --font-display: "Syne", sans-serif;
+  --font-premium: "Outfit", "Plus Jakarta Sans", sans-serif;
+
+  /* shadcn semantic color mappings */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --radius-none: 0px;
+  --radius-xs: 0.125rem;
+  --radius-default: 0.375rem;
+  --radius-full: 9999px;
+  --color-button-ripple-color: var(--button-ripple-color);
+
+  /* MRXYZ Productions custom accent tokens */
+  --color-cine-blue: var(--cine-blue);
+  --color-cine-blue-glow: var(--cine-blue-glow);
+  --color-cine-amber: var(--cine-amber);
+  --color-cine-amber-glow: var(--cine-amber-glow);
+  --color-cine-surface: var(--cine-surface);
+  --color-cine-surface-hover: var(--cine-surface-hover);
+
+  /* Marquee animation for gallery */
+  --animate-marquee: marquee var(--duration, 40s) linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+}
+
+/* ============================================================================
+   Light mode (exists for completeness but MRXYZ Productions is dark-first)
+   ============================================================================ */
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* MRXYZ Productions accent tokens — light mode fallback */
+  --cine-blue: oklch(0.78 0.15 195);
+  --cine-blue-glow: oklch(0.78 0.15 195 / 40%);
+  --cine-amber: oklch(0.66 0.23 295);
+  --cine-amber-glow: oklch(0.66 0.23 295 / 40%);
+  --cine-surface: oklch(0.95 0 0);
+  --cine-surface-hover: oklch(0.92 0 0);
+  --button-ripple-color: oklch(0.145 0 0 / 0.3);
+}
+
+/* ============================================================================
+   Dark mode — THE primary MRXYZ Productions experience
+   Deep blacks, rich charcoal, electric cyan & ultraviolet accents
+   ============================================================================ */
+.dark {
+  /* Core surfaces — pure cinema darkness */
+  --background: oklch(0.09 0 0);            /* near-black, deeper than default */
+  --foreground: oklch(0.96 0 0);            /* crisp off-white text */
+
+  /* Cards float slightly above background */
+  --card: oklch(0.13 0 0);
+  --card-foreground: oklch(0.96 0 0);
+
+  /* Popovers / dialogs — slightly lighter than cards */
+  --popover: oklch(0.15 0 0);
+  --popover-foreground: oklch(0.96 0 0);
+
+  /* Primary — electric blue accent */
+  --primary: oklch(0.78 0.15 195);
+  --primary-foreground: oklch(0.98 0 0);
+
+  /* Secondary — muted charcoal surface */
+  --secondary: oklch(0.18 0 0);
+  --secondary-foreground: oklch(0.9 0 0);
+
+  /* Muted — for subdued text and subtle elements */
+  --muted: oklch(0.18 0 0);
+  --muted-foreground: oklch(0.6 0 0);
+
+  /* Accent — a slightly brighter surface for interactive elements */
+  --accent: oklch(0.2 0 0);
+  --accent-foreground: oklch(0.96 0 0);
+
+  --destructive: oklch(0.704 0.191 22.216);
+
+  /* Borders — very subtle, glass-like */
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.78 0.15 195 / 50%);      /* blue ring glow */
+
+  /* Charts */
+  --chart-1: oklch(0.78 0.15 195);         /* electric blue */
+  --chart-2: oklch(0.66 0.23 295);         /* amber */
+  --chart-3: oklch(0.56 0.2 320);           /* magenta */
+  --chart-4: oklch(0.7 0.18 160);           /* teal */
+  --chart-5: oklch(0.75 0.12 60);           /* warm */
+
+  /* Sidebar */
+  --sidebar: oklch(0.11 0 0);
+  --sidebar-foreground: oklch(0.96 0 0);
+  --sidebar-primary: oklch(0.78 0.15 195);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.18 0 0);
+  --sidebar-accent-foreground: oklch(0.96 0 0);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: oklch(0.78 0.15 195 / 50%);
+
+  /* MRXYZ Productions bespoke accent tokens */
+  --cine-blue: oklch(0.78 0.15 195);       /* primary electric blue */
+  --cine-blue-glow: oklch(0.78 0.15 195 / 30%);
+  --cine-amber: oklch(0.66 0.23 295);      /* neon amber — ratings, highlights */
+  --cine-amber-glow: oklch(0.66 0.23 295 / 30%);
+  --cine-surface: oklch(1 0 0 / 5%);        /* glassmorphism surface */
+  --cine-surface-hover: oklch(1 0 0 / 10%);
+  --button-ripple-color: oklch(0.985 0 0 / 0.5);
+}
+
+/* ============================================================================
+   Base Layer
+   ============================================================================ */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans scroll-smooth;
+  }
+}
+
+/* ============================================================================
+   Utility: hide scrollbars (for horizontal scrolling areas)
+   ============================================================================ */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================================================
+   Utility: cinematic text gradient
+   ============================================================================ */
+.text-gradient-cine {
+  background: linear-gradient(
+    135deg,
+    oklch(0.78 0.15 195) 0%,
+    oklch(0.75 0.2 280) 50%,
+    oklch(0.66 0.23 295) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================================================
+   Utility: glow effects for cards and buttons
+   ============================================================================ */
+.glow-blue {
+  box-shadow: 0 0 20px oklch(0.62 0.214 259 / 20%),
+              0 0 60px oklch(0.62 0.214 259 / 10%);
+}
+
+.glow-amber {
+  box-shadow: 0 0 20px oklch(0.795 0.184 86 / 20%),
+              0 0 60px oklch(0.795 0.184 86 / 10%);
+}
+
+/* ============================================================================
+   Styling native select options for proper dark-theme rendering across browsers
+   ============================================================================ */
+select option {
+  background-color: #0f0f13; /* Solid dark cinematic background matching the theme */
+  color: #f5f5f7;            /* High-contrast off-white text color */
+}
+
+/* Optional: ensure dropdown matches dark background on platforms that support it */
+select {
+  color-scheme: dark;
+}
+
+/* ============================================================================
+   AI Assistant Glow & Animation Utilities (Tailwind 4 Compliant)
+   ============================================================================ */
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-popIn {
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.floating-ai-button:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.9), 0 0 50px rgba(124, 58, 237, 0.7), 0 0 70px rgba(109, 40, 217, 0.5);
+}
+
+
+/* MRXYZ Productions visual system — editorial, deep-space, high-contrast */
+:root, .dark {
+  --background: #08090e;
+  --foreground: #f4f6fb;
+  --card: #11131b;
+  --card-foreground: #f4f6fb;
+  --popover: #11131b;
+  --popover-foreground: #f4f6fb;
+  --primary: #a5f3fc;
+  --primary-foreground: #071015;
+  --secondary: #171a25;
+  --secondary-foreground: #e8ebf4;
+  --muted: #171a25;
+  --muted-foreground: #9298a9;
+  --accent: #1b1d2a;
+  --accent-foreground: #f4f6fb;
+  --border: rgba(210, 220, 255, .11);
+  --input: rgba(210, 220, 255, .14);
+  --ring: rgba(165, 243, 252, .45);
+  --cine-blue: #a5f3fc;
+  --cine-blue-glow: rgba(165, 243, 252, .24);
+  --cine-amber: #c4b5fd;
+  --cine-amber-glow: rgba(196, 181, 253, .22);
+  --cine-surface: rgba(255,255,255,.055);
+  --cine-surface-hover: rgba(255,255,255,.095);
+}
+body { background: #08090e; color: #f4f6fb; }
+.text-gradient-cine { background: linear-gradient(110deg, #a5f3fc 5%, #c4b5fd 58%, #f0abfc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.mr-hero { background: radial-gradient(ellipse at 78% 45%, rgba(89, 63, 172, .18), transparent 38%), linear-gradient(180deg, #090a12 0%, #08090e 80%); }
+.mr-hero-grid { opacity: .32; background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px); background-size: 56px 56px; mask-image: linear-gradient(to bottom, black, transparent 95%); }
+.mr-orb { border-radius: 9999px; filter: blur(80px); }
+.mr-orb-one { width: 300px; height: 300px; background: rgba(124, 58, 237, .2); }
+.mr-orb-two { width: 240px; height: 240px; background: rgba(34, 211, 238, .08); }
+.mr-eyebrow, .mr-carousel-label { border: 1px solid rgba(165,243,252,.17); background: rgba(14,19,31,.62); backdrop-filter: blur(16px); }
+.mr-eyebrow { border-radius: 999px; padding: 9px 13px; color: #b7c5dc; font-size: 10px; font-weight: 700; letter-spacing: .16em; }
+.mr-live-dot { width: 6px; height: 6px; border-radius: 100%; background: #a5f3fc; box-shadow: 0 0 12px #a5f3fc; }
+.mr-display { font-family: Arial, Helvetica, sans-serif; }
+.mr-title-gradient { background: linear-gradient(105deg, #a5f3fc 0%, #c4b5fd 55%, #e9d5ff 100%); color: transparent; background-clip: text; -webkit-background-clip: text; }
+.mr-primary-button { background: linear-gradient(110deg, #0e7490, #6366f1 85%); box-shadow: 0 10px 32px rgba(79,70,229,.23), inset 0 1px rgba(255,255,255,.22); transition: transform .2s, box-shadow .2s; }
+.mr-primary-button:hover { transform: translateY(-2px); box-shadow: 0 15px 42px rgba(79,70,229,.34); }
+.mr-secondary-button { border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.045); backdrop-filter: blur(14px); transition: border-color .2s, background .2s; }
+.mr-secondary-button:hover { border-color: rgba(165,243,252,.42); background: rgba(165,243,252,.07); }
+.mr-carousel-stage { perspective: 1300px; perspective-origin: 50% 48%; touch-action: pan-y; cursor: grab; user-select: none; }
+.mr-carousel-stage.is-dragging { cursor: grabbing; }
+.mr-carousel-wheel { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .08s linear; }
+.mr-carousel-floor { position: absolute; width: 72%; height: 32%; left: 14%; bottom: 8%; border-radius: 50%; background: radial-gradient(ellipse, rgba(34,211,238,.15), rgba(99,102,241,.08) 38%, transparent 70%); filter: blur(20px); transform: rotateX(72deg); }
+.mr-movie-card { position: absolute; left: 50%; top: 50%; width: clamp(142px, 19vw, 220px); height: clamp(218px, 29vw, 330px); margin-left: calc(clamp(142px, 19vw, 220px) / -2); margin-top: calc(clamp(218px, 29vw, 330px) / -2); overflow: hidden; border-radius: 15px; border: 1px solid rgba(255,255,255,.22); background: #151722; box-shadow: 0 28px 70px rgba(0,0,0,.5); backface-visibility: hidden; transition: box-shadow .25s, border-color .25s; }
+.mr-movie-card:hover { border-color: rgba(165,243,252,.7); box-shadow: 0 28px 80px rgba(0,0,0,.62), 0 0 32px rgba(165,243,252,.13); }
+.mr-movie-card img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.mr-card-shade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 32%, rgba(4,5,10,.15) 47%, rgba(4,5,10,.96) 100%); }
+.mr-card-info { position: absolute; inset: auto 0 0; padding: 17px 15px 15px; }
+.mr-card-genre { display: block; margin-bottom: 6px; color: #a5f3fc; font-size: 8px; font-weight: 800; letter-spacing: .12em; }
+.mr-card-info h2 { margin-bottom: 8px; color: white; font-size: 17px; font-weight: 700; letter-spacing: -.03em; line-height: 1.15; }
+.mr-carousel-label { top: 8%; border-radius: 999px; }
+.mr-scroll-cue { animation: mr-float 2.4s ease-in-out infinite; }
+@keyframes mr-float { 0%,100% { transform: translate(-50%,0); } 50% { transform: translate(-50%,-5px); } }
+@media (max-width: 640px) { .mr-carousel-stage { perspective: 900px; } .mr-carousel-label { top: 4%; font-size: 8px; } .mr-movie-card { border-radius: 11px; } .mr-card-info { padding: 10px; } .mr-card-info h2 { font-size: 13px; } .mr-card-genre { font-size: 7px; } }
+@media (prefers-reduced-motion: reduce) { .mr-scroll-cue { animation: none; } }
+
+/* Accessible controls for the signature 3D poster carousel. */
+.mr-carousel-control { display: inline-flex; width: 42px; height: 42px; align-items: center; justify-content: center; border: 1px solid rgba(165,243,252,.22); border-radius: 9999px; color: rgba(240,249,255,.9); background: rgba(10,13,23,.72); box-shadow: 0 8px 28px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.08); backdrop-filter: blur(14px); transition: transform .2s ease, border-color .2s ease, background .2s ease; }
+.mr-carousel-control:hover { border-color: rgba(165,243,252,.6); background: rgba(22,32,50,.92); }
+.mr-carousel-control:active { transform: translateY(-50%) scale(.94); }
+.mr-carousel-control:focus-visible, .mr-carousel-stage:focus-visible { outline: 2px solid #a5f3fc; outline-offset: 4px; }
+@media (max-width: 640px) { .mr-carousel-control { width: 36px; height: 36px; } }
